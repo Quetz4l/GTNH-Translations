@@ -225,6 +225,7 @@ class Action:
             settings.GIT_AUTHOR,
             f"Daily modpack {str(datetime.date.today())}",
             allow_empty=True,
+            use_git_add_all=True,
         )
 
     def save_daily_modpack_history(
@@ -426,8 +427,12 @@ def git_commit(
     author: Optional[str],
     message: str,
     allow_empty: bool = False,
+    use_git_add_all: bool = False,
 ) -> None:
-    porcelain.add(git_root, paths)  # type: ignore[no-untyped-call]
+    if use_git_add_all:
+        subprocess.run(['git', '-C', git_root, 'add', '-A'] + paths, check=True)
+    else:
+        porcelain.add(git_root, paths)  # type: ignore[no-untyped-call]
     staged = porcelain.status(git_root).staged  # type: ignore[no-untyped-call]
     if not allow_empty and len(staged['add']) == 0 and len(staged['delete']) == 0 and len(staged['modify']) == 0:
         logger.info("No changes to commit")
