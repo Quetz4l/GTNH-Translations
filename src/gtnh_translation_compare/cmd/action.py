@@ -200,7 +200,6 @@ class Action:
         def get_relpath(path):
             return repo_path / subdirectory / path
 
-        paths_to_commit: list[str] = []
         modpack = ModPack(Path(modpack_path))
         base_path = repo_path / subdirectory
 
@@ -217,7 +216,6 @@ class Action:
         for lang_file in modpack.lang_files(Language.en_US):
             relpath = get_relpath(lang_file.get_en_us_relpath())
             write_file(os.path.abspath(relpath), lang_file.content)
-            paths_to_commit.append(relpath)
 
         qb_lang_file_url = (
             f"https://raw.githubusercontent.com"
@@ -228,14 +226,13 @@ class Action:
             raise ValueError(f"Failed to get quest book file from {qb_lang_file_url}")
         relpath = get_relpath(settings.DEFAULT_QUESTS_LANG_EN_US_REL_PATH)
         write_file(os.path.abspath(relpath), res.text)
-        paths_to_commit.append(relpath)
 
         if files_to_remove:
             porcelain.remove(repo_path, files_to_remove)
 
         git_commit(
             repo_path,
-            paths_to_commit,
+            [str(base_path)],
             settings.GIT_AUTHOR,
             f"Daily modpack {str(datetime.date.today())}",
             allow_empty=True,
