@@ -203,15 +203,7 @@ class Action:
         modpack = ModPack(Path(modpack_path))
         base_path = repo_path / subdirectory
 
-        files_to_remove: list[str] = []
-        if base_path.exists():
-            all_tracked = porcelain.ls_files(repo_path)
-            for f in all_tracked:
-                f_str = str(f)
-                if f_str.startswith(str(base_path)):
-                    files_to_remove.append(f_str)
-
-        clear_folder(base_path)
+        clear_folder(str(base_path))
 
         for lang_file in modpack.lang_files(Language.en_US):
             relpath = get_relpath(lang_file.get_en_us_relpath())
@@ -227,11 +219,8 @@ class Action:
         relpath = get_relpath(settings.DEFAULT_QUESTS_LANG_EN_US_REL_PATH)
         write_file(os.path.abspath(relpath), res.text)
 
-        if files_to_remove:
-            porcelain.remove(repo_path, files_to_remove)
-
         git_commit(
-            repo_path,
+            str(repo_path),
             [str(base_path)],
             settings.GIT_AUTHOR,
             f"Daily modpack {str(datetime.date.today())}",
