@@ -202,14 +202,15 @@ class Action:
 
         paths_to_commit: list[str] = []
         modpack = ModPack(Path(modpack_path))
+        base_path = repo_path / subdirectory
 
-        clear_folder(repo_path / subdirectory)
+        files_before = set(base_path.rglob('*')) if base_path.exists() else set()
+        clear_folder(base_path)
 
         for lang_file in modpack.lang_files(Language.en_US):
             relpath = get_relpath(lang_file.get_en_us_relpath())
             write_file(os.path.abspath(relpath), lang_file.content)
-
-        paths_to_commit.append(repo_path / subdirectory)
+            paths_to_commit.append(relpath)
 
         qb_lang_file_url = (
             f"https://raw.githubusercontent.com"
@@ -221,6 +222,11 @@ class Action:
         relpath = get_relpath(settings.DEFAULT_QUESTS_LANG_EN_US_REL_PATH)
         write_file(os.path.abspath(relpath), res.text)
         paths_to_commit.append(relpath)
+
+        files_after = set(base_path.rglob('*'))
+        deleted = files_before - files_after
+        if deleted:
+          porcelain.remove(repo_path, [str(f) for f in deleted])
 
         git_commit(
             repo_path,
