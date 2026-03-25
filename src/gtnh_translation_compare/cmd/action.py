@@ -204,7 +204,14 @@ class Action:
         modpack = ModPack(Path(modpack_path))
         base_path = repo_path / subdirectory
 
-        files_before = set(base_path.rglob('*')) if base_path.exists() else set()
+        files_to_remove: list[str] = []
+        if base_path.exists():
+            all_tracked = porcelain.ls_files(repo_path)
+            for f in all_tracked:
+                f_str = str(f)
+                if f_str.startswith(str(base_path)):
+                    files_to_remove.append(f_str)
+
         clear_folder(base_path)
 
         for lang_file in modpack.lang_files(Language.en_US):
@@ -223,10 +230,8 @@ class Action:
         write_file(os.path.abspath(relpath), res.text)
         paths_to_commit.append(relpath)
 
-        files_after = set(base_path.rglob('*'))
-        deleted = files_before - files_after
-        if deleted:
-          porcelain.remove(repo_path, [str(f) for f in deleted])
+        if files_to_remove:
+            porcelain.remove(repo_path, files_to_remove)
 
         git_commit(
             repo_path,
