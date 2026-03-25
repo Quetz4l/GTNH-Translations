@@ -30,7 +30,7 @@ jobs:
       - name: Download daily
         uses: ./.github/actions/download-daily
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN}}
           directory: .daily-temp
       - name: Upload mod jar translations
         run: >-

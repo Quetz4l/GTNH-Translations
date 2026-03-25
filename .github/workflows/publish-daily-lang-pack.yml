@@ -63,7 +63,7 @@ jobs:
           git pull origin master
           git push origin master
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.MY_GITHUB_TOKEN}}
 
   daily-build:
     name: ${{ inputs.target_lang }} Daily Build
@@ -115,7 +115,7 @@ jobs:
           git push origin ${{ inputs.target_lang }}-latest
           git push origin master
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.MY_GITHUB_TOKEN}}
       - name: Release as Latest
         uses: softprops/action-gh-release@v2
         with:
@@ -123,4 +123,4 @@ jobs:
           name: ${{ inputs.target_lang }} Latest
           files: |
             ./assets/GTNH-${{ inputs.target_lang }}-Translation-Daily-${{ steps.date.outputs.today }}.zip
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.MY_GITHUB_TOKEN}}
